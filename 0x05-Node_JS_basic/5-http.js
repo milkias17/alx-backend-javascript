@@ -1,16 +1,13 @@
 const http = require('http');
 const { readFileSync, existsSync } = require('fs');
 
-const dbName = process.argv[2];
-
 function getStudentsString(path) {
   if (!existsSync(path)) {
     throw new Error('Cannot load the database');
   }
 
   const content = readFileSync(path, 'utf8').trim().split('\n');
-  let finalString = 'This is the list of our students\n';
-  finalString += `Number of students: ${content.length - 1}\n`;
+  let finalString = `Number of students: ${content.length - 1}\n`;
   const countHolder = new Map();
   for (const row of content.splice(1)) {
     const tmp = row.split(',');
@@ -41,7 +38,12 @@ const app = http.createServer((req, res) => {
       res.end('Hello Holberton School!');
       break;
     case '/students':
-      res.end(getStudentsString(dbName));
+      try {
+        const finalString = getStudentsString(process.argv[2]);
+        res.end(`This is the list of our students\n${finalString}`);
+      } catch (error) {
+        res.end(`This is the list of our students\n${error.message}`);
+      }
       break;
     default:
       break;
